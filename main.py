@@ -1,7 +1,7 @@
 import random 
 
 # Global variables
-MAX_LINES = 3
+MAX_LINES = 3 
 MAX_BET = 100
 MIN_BET = 1
 
@@ -15,6 +15,28 @@ symbol_count = {
     "D": 8
 }
 
+symbol_value = {
+    "A": 1,
+    "B": 2,
+    "C": 3,
+    "D": 4
+}
+
+def check_winnings(columns, lines, bet, values):
+    winnings = 0
+    winning_lines = []
+    for line in range(lines):
+        symbol = columns[0][line]
+        for column in columns:
+            symbol_to_check = column[line]
+            if symbol != symbol_to_check:
+                break
+        else:
+            winnings += values[symbol] * bet 
+            winning_lines.append(line + 1)
+            
+    return winnings, winning_lines
+            
 def get_slot_machine_spin(rows, cols, symbols):
     all_symbols = []
     for symbol, symbol_count in symbols.items():
@@ -34,13 +56,15 @@ def get_slot_machine_spin(rows, cols, symbols):
         
     return columns
 
-def print_sot_machine(columns):
+def print_slot_machine(columns):
     for row in range(len(columns[0])):
         for i, column in enumerate(columns):
             if i != len(columns) - 1:
-                print(column[row], "|")        
+                print(column[row], end=" | ")        
             else:
-                print(column[row])   
+                print(column[row], end="")
+                
+        print()
     
     
 def deposit():
@@ -84,9 +108,7 @@ def get_bet():
             print("Please enter a positive number")    
     return amount
 
-#Fonction main 
-def main():
-    balance = deposit()
+def spin(balance):
     lines = get_number_of_lines()
     while True:
         bet = get_bet()
@@ -98,7 +120,22 @@ def main():
             break
         
     print(f"You are betting {bet} on {lines} lines. Total bet is equal to {total_bet}.")
-    
-    print(balance, lines, bet)
+    slots = get_slot_machine_spin(ROWS, COLS, symbol_count)
+    print_slot_machine(slots)
+    winnings, winning_lines = check_winnings(slots, lines, bet, symbol_value)
+    print(f"You won {winnings}.")
+    print(f"You won on line(s) :", *winning_lines) #* = splat operator, pass every line from the list to the print function
+    return winnings - total_bet
+ 
+def main():
+    balance = deposit()
+    while True:
+        print(f"Current balance is {balance}.")
+        _ = input("Press enter to spin (q to quit).")
+        if spin == "q":
+            break
+        balance += spin(balance)
+        
+    print(f"You left with with {balance}.")
     
 main()
